@@ -5,6 +5,7 @@
     <color name="colorPrimaryDark">#1B1D26</color>
     <color name="colorAccent">#F45861</color>
     <color name="purple">#4A4B5E</color>
+    <color name="bg_action_mode">#757575</color>
 
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="windowBackground">#FFFFFF</color>
