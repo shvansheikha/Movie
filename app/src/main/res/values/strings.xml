@@ -8,4 +8,7 @@
     <string name="movies_on_theater">Movies on Theater</string>
     <string name="see_all">SEE ALL</string>
     <string name="reviews">Reviews</string>
+
+    <string name="Open">open</string>
+    <string name="Close">close</string>
 </resources>

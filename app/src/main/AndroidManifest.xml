@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="kr.zagros.shwan.moviemvvm">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".app.MovieMvvmApplication"
         android:allowBackup="true"
