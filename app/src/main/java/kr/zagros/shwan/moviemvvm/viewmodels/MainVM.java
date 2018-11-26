@@ -2,10 +2,11 @@ package kr.zagros.shwan.moviemvvm.viewmodels;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
+import android.util.Log;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -15,31 +16,37 @@ import kr.zagros.shwan.moviemvvm.DataSource.Client.ApiService;
 import kr.zagros.shwan.moviemvvm.DataSource.PagedSources.MoviesDataSource;
 import kr.zagros.shwan.moviemvvm.DataSource.PagedSources.MoviesDataSourceFactory;
 import kr.zagros.shwan.moviemvvm.Entities.Movie;
+import kr.zagros.shwan.moviemvvm.Entities.NetworkState;
 import kr.zagros.shwan.moviemvvm.utils.Config;
 
 public class MainVM extends ViewModel {
 
-    private LiveData<PagedList<Movie>> responselistMoves;
+    private LiveData<PagedList<Movie>> responseListMoves;
+    private LiveData<NetworkState> networkStateLiveData;
     private Executor executor;
     private MoviesDataSourceFactory factory;
     private LiveData<MoviesDataSource> dataSource;
 
 
-
     @SuppressLint("CheckResult")
     public MainVM() {
-        this.executor= Executors.newFixedThreadPool(5);
-        ApiService apiService=ApiClient.create(Config.BASE_URL_ONE).create(ApiService.class);
-        factory=new MoviesDataSourceFactory(apiService,executor);
-        dataSource=factory.getMutableLiveData();
+        this.executor = Executors.newFixedThreadPool(5);
+        ApiService apiService = ApiClient.create(Config.BASE_URL_ONE).create(ApiService.class);
+        factory = new MoviesDataSourceFactory(apiService, executor);
+        dataSource = factory.getMutableLiveData();
 
-        PagedList.Config pageConfig=(new PagedList.Config.Builder())
+        networkStateLiveData = Transformations.switchMap(factory.getMutableLiveData(), source -> {
+            Log.d("TAG", "apply: network change");
+            return source.getNetworkState();
+        });
+
+        PagedList.Config pageConfig = (new PagedList.Config.Builder())
                 .setEnablePlaceholders(true)
                 .setInitialLoadSizeHint(10)
                 .setPageSize(10)
                 .build();
 
-        responselistMoves=(new LivePagedListBuilder<Long,Movie>(factory,pageConfig))
+        responseListMoves = (new LivePagedListBuilder<Long, Movie>(factory, pageConfig))
                 .setFetchExecutor(executor)
                 .build();
 
@@ -47,7 +54,10 @@ public class MainVM extends ViewModel {
 
 
     public LiveData<PagedList<Movie>> getResponseLiveData() {
-        return this.responselistMoves;
+        return this.responseListMoves;
     }
 
+    public LiveData<NetworkState> getNetworkStateLiveData() {
+        return networkStateLiveData;
+    }
 }

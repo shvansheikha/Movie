@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import java.util.Objects;
 
-import kr.zagros.shwan.moviemvvm.Entities.Movie;
 import kr.zagros.shwan.moviemvvm.Entities.MovieResponse;
 import kr.zagros.shwan.moviemvvm.R;
 import kr.zagros.shwan.moviemvvm.databinding.ActivityMainBinding;
@@ -38,7 +37,12 @@ public class MainActivity extends AppCompatActivity implements RetryCallback {
         initNavigationDrawer();
         setupRecyclerView();
 
-        mainVM.getResponseLiveData().observe(this,Movie->moviesAdapter.submitList(Movie));
+        setupObserversDataFromViewModel();
+    }
+
+    private void setupObserversDataFromViewModel() {
+        mainVM.getResponseLiveData().observe(this, Movie -> moviesAdapter.submitList(Movie));
+        mainVM.getNetworkStateLiveData().observe(this, networkState -> moviesAdapter.setMyNetworkState(networkState));
     }
 
     private void initNavigationDrawer() {
@@ -51,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements RetryCallback {
     }
 
     private void setupRecyclerView() {
-        moviesAdapter=new MoviesAdapter(this, this);
+        moviesAdapter = new MoviesAdapter(this, this);
         binding.content.list.setLayoutManager(new LinearLayoutManager(this, LinearLayout.VERTICAL, false));
         binding.content.list.setAdapter(moviesAdapter);
     }

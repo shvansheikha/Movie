@@ -2,16 +2,17 @@ package kr.zagros.shwan.moviemvvm.views.adapters;
 
 import android.arch.paging.PagedListAdapter;
 import android.content.Context;
-import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -26,11 +27,11 @@ import kr.zagros.shwan.moviemvvm.views.activities.RetryCallback;
 
 public class MoviesAdapter extends PagedListAdapter<Movie, RecyclerView.ViewHolder> {
     private String TAG = "MoviesAdapter";
-    public int MOVIE_ITEM_VIEW_TYPE = 1;
-    public int LOAD_ITEM_VIEW_TYPE = 0;
+    private int MOVIE_ITEM_VIEW_TYPE = 1;
+    private int LOAD_ITEM_VIEW_TYPE = 0;
     private Context mContext;
     private RetryCallback retryCallback;
-    private NetworkState mNetworkState;
+    private NetworkState myNetworkState;
     private boolean retryPageLoad = false;
     private String errorMsg;
 
@@ -66,15 +67,50 @@ public class MoviesAdapter extends PagedListAdapter<Movie, RecyclerView.ViewHold
             Movie movie = getItem(position);
             movieViewHolder.bindData(movie);
         } else if (viewHolder instanceof LoadingViewHolder) {
-            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) viewHolder;
+            LoadingViewHolder loadingVH = (LoadingViewHolder) viewHolder;
+            if (retryPageLoad) {
+                loadingVH.mErrorLayout.setVisibility(View.VISIBLE);
+                loadingVH.mProgressBar.setVisibility(View.GONE);
 
+                loadingVH.mErrorTxt.setText(
+                        errorMsg != null ?
+                                errorMsg :
+                                mContext.getString(R.string.error_msg_unknown));
+
+            } else {
+                loadingVH.mErrorLayout.setVisibility(View.GONE);
+                loadingVH.mProgressBar.setVisibility(View.VISIBLE);
+            }
         }
     }
 
-    public void setmNetworkState(NetworkState networkState){}
+    public void setMyNetworkState(NetworkState networkState) {
+        showRetry(networkState.getStatus() == NetworkState.Status.FAILED, networkState.getMsg());
+        Log.e(TAG, "setNetworkState adapter:  networkState  " + networkState.getMsg());
+        boolean wasLoading = isLoadingData();
+        Log.e(TAG, "setNetworkState adapter: wasLoading  " + wasLoading);
+        this.myNetworkState = networkState;
+        boolean willLoad = isLoadingData();
+        if (wasLoading != willLoad) {
+            if (wasLoading) {
+                Log.e(TAG, "setNetworkState adapter: notifyItemRemoved  ");
+                notifyItemRemoved(getItemCount());
+            } else {
+                Log.e(TAG, "setNetworkState adapter: notifyItemInserted ");
+                notifyItemInserted(getItemCount());
+            }
+        }
+
+    }
 
     private boolean isLoadingData() {
-        return (mNetworkState != null && mNetworkState != NetworkState.LOADED);
+        return (myNetworkState != null && myNetworkState != NetworkState.LOADED);
+    }
+
+    private void showRetry(boolean show, @Nullable String errorMsg) {
+        retryPageLoad = show;
+        notifyItemChanged(getItemCount() - 1);
+        if (errorMsg != null) this.errorMsg = errorMsg;
     }
 
     private class MovieViewHolder extends RecyclerView.ViewHolder {
@@ -92,11 +128,18 @@ public class MoviesAdapter extends PagedListAdapter<Movie, RecyclerView.ViewHold
         }
 
         void bindData(Movie movie) {
+            Log.e(TAG, "bindData: " + movie.getId());
             movieTitleTextView.setMaxTextChar(15);
             movieTitleTextView.setText(movie.getTitle());
             // reviewsNumberTextView.setText(String.valueOf(movie.getVoteCount()) + " " + mContext.getString(R.string.reviews));
+            String url = "";
+            if (movie.getImages() == null || movie.getImages().get(0) == null) {
+                url = "https://efl-expertise.com/efl/uploads/2017/09/efllogoplaceholder.png";
+            } else {
+                url = movie.getImages().get(0);
+            }
             GlideApp.with(mContext)
-                    .load(movie.getImages().get(0))
+                    .load(url)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(moviePosterImageView);
             ratingBar.setRating(Float.valueOf(movie.getImdbRating()));
@@ -104,9 +147,17 @@ public class MoviesAdapter extends PagedListAdapter<Movie, RecyclerView.ViewHold
     }
 
     private class LoadingViewHolder extends RecyclerView.ViewHolder {
+        private ProgressBar mProgressBar;
+        private ImageButton mRetryBtn;
+        private TextView mErrorTxt;
+        private LinearLayout mErrorLayout;
 
         LoadingViewHolder(@NonNull View itemView) {
             super(itemView);
+            mProgressBar = itemView.findViewById(R.id.loadMore_progress);
+            mRetryBtn = itemView.findViewById(R.id.retryLoadingButton);
+            mErrorTxt = itemView.findViewById(R.id.loadMore_errorTxt);
+            mErrorLayout = itemView.findViewById(R.id.loadMore_errorLayout);
         }
     }
 

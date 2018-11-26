@@ -12,6 +12,6 @@ public interface ApiService {
      */
 
     @GET("v1/movies")
-    Call<ResponseBody> getMovies(@Query("page") int page);
+    Call<ResponseBody> getMovies(@Query("page") long page);
 
 }
