@@ -1,4 +1,4 @@
-package kr.zagros.shwan.moviemvvm.DataSource.client;
+package kr.zagros.shwan.moviemvvm.DataSource.Client;
 
 import java.util.concurrent.TimeUnit;
 

@@ -4,51 +4,50 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
 
-import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableSingleObserver;
-import io.reactivex.schedulers.Schedulers;
-import kr.zagros.shwan.moviemvvm.DataSource.client.ApiClient;
-import kr.zagros.shwan.moviemvvm.DataSource.client.ApiService;
-import kr.zagros.shwan.moviemvvm.DataSource.store.DataStoreImp;
-import kr.zagros.shwan.moviemvvm.Entities.MovieResponse;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import kr.zagros.shwan.moviemvvm.DataSource.Client.ApiClient;
+import kr.zagros.shwan.moviemvvm.DataSource.Client.ApiService;
+import kr.zagros.shwan.moviemvvm.DataSource.PagedSources.MoviesDataSource;
+import kr.zagros.shwan.moviemvvm.DataSource.PagedSources.MoviesDataSourceFactory;
+import kr.zagros.shwan.moviemvvm.Entities.Movie;
 import kr.zagros.shwan.moviemvvm.utils.Config;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainVM extends ViewModel {
 
-    private MutableLiveData<MovieResponse> responseLiveData;
-    private DataStoreImp storeImp;
+    private LiveData<PagedList<Movie>> responselistMoves;
+    private Executor executor;
+    private MoviesDataSourceFactory factory;
+    private LiveData<MoviesDataSource> dataSource;
+
 
 
     @SuppressLint("CheckResult")
     public MainVM() {
-        this.storeImp = new DataStoreImp();
-        this.responseLiveData = new MutableLiveData<>();
+        this.executor= Executors.newFixedThreadPool(5);
+        ApiService apiService=ApiClient.create(Config.BASE_URL_ONE).create(ApiService.class);
+        factory=new MoviesDataSourceFactory(apiService,executor);
+        dataSource=factory.getMutableLiveData();
 
-        storeImp.getMovies(1)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableSingleObserver<MovieResponse>() {
-                    @Override
-                    public void onSuccess(MovieResponse movieResponse) {
-                        responseLiveData.postValue(movieResponse);
-                    }
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("shvansheikha", "onFailure: "+e.getMessage() );
-                    }
-                });
+        PagedList.Config pageConfig=(new PagedList.Config.Builder())
+                .setEnablePlaceholders(true)
+                .setInitialLoadSizeHint(10)
+                .setPageSize(10)
+                .build();
+
+        responselistMoves=(new LivePagedListBuilder<Long,Movie>(factory,pageConfig))
+                .setFetchExecutor(executor)
+                .build();
+
     }
 
 
-    public MutableLiveData<MovieResponse> getResponseLiveData() {
-        return this.responseLiveData;
+    public LiveData<PagedList<Movie>> getResponseLiveData() {
+        return this.responselistMoves;
     }
 
 }

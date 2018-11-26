@@ -1,10 +1,10 @@
-package kr.zagros.shwan.moviemvvm.DataSource.store;
+package kr.zagros.shwan.moviemvvm.DataSource.Store;
 
 import java.io.IOException;
 
 import io.reactivex.Single;
-import kr.zagros.shwan.moviemvvm.DataSource.client.ApiClient;
-import kr.zagros.shwan.moviemvvm.DataSource.client.ApiService;
+import kr.zagros.shwan.moviemvvm.DataSource.Client.ApiClient;
+import kr.zagros.shwan.moviemvvm.DataSource.Client.ApiService;
 import kr.zagros.shwan.moviemvvm.Entities.MovieResponse;
 import kr.zagros.shwan.moviemvvm.utils.Config;
 
@@ -16,6 +16,7 @@ public class DataStoreImp implements DataStore {
         this.apiService = ApiClient.create(Config.BASE_URL_ONE).create(ApiService.class);
     }
 
+    //region Main
     @Override
     public Single<MovieResponse> getMovies(int page) {
         return Single.create(emitter -> {
@@ -30,11 +31,14 @@ public class DataStoreImp implements DataStore {
     }
 
     private MovieResponse CreateHome(int page) {
-        try {
-            return apiService.getMovies(page).execute().body();
+        return new MovieResponse();
+      /*  try {
+            return new MovieResponse();
+            //return apiService.getMovies(page).execute().body();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return null;*/
     }
+    //endregion---------------------------------------------------
 }

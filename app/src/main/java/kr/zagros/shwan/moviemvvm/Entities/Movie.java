@@ -1,5 +1,7 @@
 package kr.zagros.shwan.moviemvvm.Entities;
 
+import android.support.v7.util.DiffUtil;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -30,6 +32,20 @@ public class Movie {
     @SerializedName("images")
     @Expose
     private List<String> images = null;
+
+
+
+    public static final DiffUtil.ItemCallback<Movie> DIFF_CALL = new DiffUtil.ItemCallback<Movie>() {
+        @Override
+        public boolean areItemsTheSame(Movie oldItem, Movie newItem) {
+            return  oldItem.id == newItem.id;
+        }
+
+        @Override
+        public boolean areContentsTheSame(Movie oldItem, Movie newItem) {
+            return  oldItem.id == newItem.id;
+        }
+    };
 
     public Integer getId() {
         return id;
