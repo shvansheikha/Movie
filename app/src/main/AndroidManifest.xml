@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="kr.zagros.shwan.moviemvvm">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".app.MovieMvvmApplication"
@@ -15,8 +15,12 @@
         android:theme="@style/MyMaterialTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".views.activities.MainActivity">
+
+        </activity>
+        <activity android:name=".test.Main2Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

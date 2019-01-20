@@ -1,8 +1,8 @@
 package kr.zagros.shwan.moviemvvm.DataSource.PagedSources;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.paging.PageKeyedDataSource;
-import android.support.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+import androidx.paging.PageKeyedDataSource;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -58,6 +58,9 @@ public class MoviesDataSource extends PageKeyedDataSource<Long, Movie> {
                         networkState.postValue(NetworkState.LOADED);
                         responseString = response.body().string();
                         movieList = JSONParser.getMovieList(responseString);
+                        for (Movie m:movieList) {
+                            Log.e(TAG, "onResponse: "+m.getId() );
+                        }
                         callback.onResult(movieList, null, (long) 2);
                     } catch (IOException | JSONException e) {
                         e.printStackTrace();
@@ -71,6 +74,7 @@ public class MoviesDataSource extends PageKeyedDataSource<Long, Movie> {
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 String errorMessage = t.getMessage();
+                Log.e(TAG, "onFailure: "+errorMessage );
                 networkState.postValue(new NetworkState(NetworkState.Status.FAILED, errorMessage, t));
             }
         });
@@ -98,6 +102,7 @@ public class MoviesDataSource extends PageKeyedDataSource<Long, Movie> {
                         moviesList = JSONParser.getMovieList(responseString);
                         responseJson = new JSONObject(responseString);
                         nextKey = (params.key == responseJson.getJSONObject("metadata").getInt("page_count")) ? null : params.key + 1;
+
                         callback.onResult(moviesList, nextKey);
                     } catch (IOException | JSONException e) {
                         e.printStackTrace();
@@ -111,6 +116,7 @@ public class MoviesDataSource extends PageKeyedDataSource<Long, Movie> {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 String errorMessage = t.getMessage();
+                Log.e(TAG, "onFailure: "+errorMessage );
                 networkState.postValue(new NetworkState(NetworkState.Status.FAILED, errorMessage, t));
             }
         });

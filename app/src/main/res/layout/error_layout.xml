@@ -10,8 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:visibility="invisible">
 
         <TextView
             style="@style/TextAppearance.AppCompat.Subhead"

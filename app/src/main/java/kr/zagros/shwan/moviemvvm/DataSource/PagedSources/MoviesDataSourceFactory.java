@@ -1,7 +1,7 @@
 package kr.zagros.shwan.moviemvvm.DataSource.PagedSources;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.paging.DataSource;
+import androidx.lifecycle.MutableLiveData;
+import androidx.paging.DataSource;
 import android.util.Log;
 
 import java.util.concurrent.Executor;
