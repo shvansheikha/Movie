@@ -28,17 +28,18 @@ class MoviesDataSource internal constructor(private val executor: Executor, priv
     private val callback: PageKeyedDataSource.LoadCallback<Long, Movie>? = null
 
     val networkState: MutableLiveData<NetworkState> = MutableLiveData()
+    val firstDataState: MutableLiveData<NetworkState> = MutableLiveData()
 
     override fun loadInitial(params: PageKeyedDataSource.LoadInitialParams<Long>, callback: PageKeyedDataSource.LoadInitialCallback<Long, Movie>) {
         Log.e(TAG, "loadInitial: ")
-        networkState.postValue(NetworkState.LOADING)
+        firstDataState.postValue(NetworkState.LOADING)
         apiService.getMovies(Config.API_DEFAULT_PAGE_KEY.toLong()).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 val responseString: String
                 val movieList: List<Movie>
                 if (response.isSuccessful && response.code() == 200) {
                     try {
-                        networkState.postValue(NetworkState.LOADED)
+                        firstDataState.postValue(NetworkState.LOADED)
                         responseString = response.body()!!.string()
                         movieList = JSONParser.getMovieList(responseString)
                         for (m in movieList) {
@@ -52,15 +53,13 @@ class MoviesDataSource internal constructor(private val executor: Executor, priv
                     }
 
                 } else {
-                    Log.e(TAG, "onResponse: " + response.message())
-                    networkState.postValue(NetworkState(NetworkState.Status.FAILED, response.message(), null))
+                    firstDataState.postValue(NetworkState(NetworkState.Status.FAILED, response.message(), null))
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 val errorMessage = t.message
-                Log.e(TAG, "onFailure: $errorMessage")
-                networkState.postValue(NetworkState(NetworkState.Status.FAILED, errorMessage!!, t))
+                firstDataState.postValue(NetworkState(NetworkState.Status.FAILED, errorMessage!!, t))
             }
         })
     }

@@ -20,7 +20,7 @@ class DataStoreImp : DataStore {
     override fun getMovies(page: Int): Single<MovieResponse> {
         return Single.create { emitter ->
             val main = CreateHome(page)
-            if (!emitter.isDisposed && main != null) {
+            if (!emitter.isDisposed) {
                 emitter.onSuccess(main)
             } else {
                 emitter.onError(Throwable())

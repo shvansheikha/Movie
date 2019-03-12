@@ -93,7 +93,7 @@ class MoviesAdapter(private val mContext: Context, private val retryCallback: Re
 
     private fun showRetry(show: Boolean, errorMsg: String?) {
         retryPageLoad = show
-        notifyItemChanged(getItemCount() - 1)
+        notifyItemChanged(itemCount - 1)
         if (errorMsg != null) this.errorMsg = errorMsg
     }
 
@@ -108,7 +108,7 @@ class MoviesAdapter(private val mContext: Context, private val retryCallback: Re
             movieTitleTextView.maxTextChar = 15
             movieTitleTextView.text = movie.title
             val url: String = if (movie.images == null) {
-                "https://efl-expertise.com/efl/uploads/2017/09/efllogoplaceholder.png"
+                "https://radiodilan.com/data/playlists/Night-Time_22.jpg"
             } else {
                 movie.images!![0]
             }

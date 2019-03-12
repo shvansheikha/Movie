@@ -23,6 +23,7 @@ class MainVM : ViewModel() {
 
     val responseLiveData: LiveData<PagedList<Movie>>
     val networkStateLiveData: LiveData<NetworkState>
+    val firstDataState: LiveData<NetworkState>
     private val executor: Executor
     private val factory: MoviesDataSourceFactory
     private val dataSource: LiveData<MoviesDataSource>
@@ -34,10 +35,8 @@ class MainVM : ViewModel() {
         factory = MoviesDataSourceFactory(apiService, executor)
         dataSource = factory.mutableLiveData
 
-        networkStateLiveData = Transformations.switchMap(factory.mutableLiveData) { source ->
-            Log.d("TAG", "apply: network change")
-            source.networkState
-        }
+        firstDataState = Transformations.switchMap(factory.mutableLiveData) { source -> source.firstDataState }
+        networkStateLiveData = Transformations.switchMap(factory.mutableLiveData) { source -> source.networkState }
 
         val pageConfig = PagedList.Config.Builder()
                 .setEnablePlaceholders(true)

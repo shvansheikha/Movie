@@ -6,12 +6,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import android.widget.Toast
 import androidx.lifecycle.Observer
 
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.content_main.*
+import kr.zagros.shwan.moviemvvm.Entities.NetworkState
 import kr.zagros.shwan.moviemvvm.R
 import kr.zagros.shwan.moviemvvm.databinding.ActivityMain2Binding
 
@@ -39,7 +43,13 @@ class MainActivity : AppCompatActivity(), RetryCallback {
 
     private fun setupObserversDataFromViewModel() {
         mainVM!!.responseLiveData.observe(this, Observer { movie -> moviesAdapter!!.submitList(movie) })
-        mainVM!!.networkStateLiveData.observe(this, Observer {networkState -> moviesAdapter!!.setMyNetworkState(networkState) })
+        mainVM!!.networkStateLiveData.observe(this, Observer { networkState -> moviesAdapter!!.setMyNetworkState(networkState) })
+        mainVM!!.firstDataState.observe(this, Observer { networkState ->
+            run {
+                if (networkState == NetworkState.LOADED)
+                    main_progress.visibility = View.GONE
+            }
+        })
     }
 
     private fun initNavigationDrawer() {
