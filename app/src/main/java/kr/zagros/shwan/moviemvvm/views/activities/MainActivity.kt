@@ -6,7 +6,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 
@@ -31,17 +30,17 @@ class MainActivity : AppCompatActivity(), RetryCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main2)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         mainVM = ViewModelProviders.of(this).get(MainVM::class.java)
 
         initNavigationDrawer()
-        setupRecyclerView()
+        initRecyclerView()
 
-        setupObserversDataFromViewModel()
+        initObserversDataFromViewModel()
 
     }
 
-    private fun setupObserversDataFromViewModel() {
+    private fun initObserversDataFromViewModel() {
         mainVM!!.responseLiveData.observe(this, Observer { movie -> moviesAdapter!!.submitList(movie) })
         mainVM!!.networkStateLiveData.observe(this, Observer { networkState -> moviesAdapter!!.setMyNetworkState(networkState) })
         mainVM!!.firstDataState.observe(this, Observer { networkState ->
@@ -62,13 +61,13 @@ class MainActivity : AppCompatActivity(), RetryCallback {
         binding!!.drawerLayout.addDrawerListener(toggle)
     }
 
-    private fun setupRecyclerView() {
+    private fun initRecyclerView() {
         moviesAdapter = MoviesAdapter(this, this)
         binding!!.content.list.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         binding!!.content.list.adapter = moviesAdapter
     }
 
-    override fun retry() {
+    override fun retryGetData() {
         Toast.makeText(this, "retry", Toast.LENGTH_SHORT).show()
     }
 }
